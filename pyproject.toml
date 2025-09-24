@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+
+[project]
+name = "prism_training"
+version = "0.0.1"
+requires-python = ">=3.10"
+
+dependencies = [
+    "black",
+    "boto3",
+    "click",
+    "edt",
+    "funlib.geometry>=0.3.0",
+    "funlib.learn.torch @ git+https://github.com/funkelab/funlib.learn.torch.git",
+    "funlib.persistence >= 0.5.2",
+    "gunpowder>=1.4.0",
+    "lsds",
+    "mwatershed>=0.5.0",
+    "neuroglancer",
+    "numba>=0.60",
+    "numpy==1.26.0",
+    "pydantic==2.6.3",
+    "scikit-learn>=1.5.2",
+    "torch>=2.1.1",
+    "tqdm",
+    "wandb",
+    "zarr",
+]
+
+[project.optional-dependencies]
+pred = ["volara"]
+vis = ["funlib.show.neuroglancer"]
+
+[tool.uv.sources]
+"funlib.learn.torch" = { git = "https://github.com/funkelab/funlib.learn.torch"}
+gunpowder = { git = "https://github.com/funkelab/gunpowder", branch = "neuroglancer" }
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["prism_training"]
+
+[tool.ruff]
+# pyflakes, pycodestyle, isort
+lint.select = ["F", "E", "W", "I001"]
+
+[tool.funlib.persistence]
+voxel_size_attr = "resolution"

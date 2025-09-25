@@ -1,8 +1,12 @@
-import boto3
-import os
 from botocore import UNSIGNED
 from botocore.client import Config
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+import boto3
+import gdown
+import os
+import shutil
+import zipfile
 
 
 def _download_one(s3_client, bucket_name, key, dest_path):
@@ -52,9 +56,28 @@ if __name__ == "__main__":
         output="instance/example_data.zarr",
     )
 
-#   downloadDirectory(
-# "e11bio-prism",
-# "ls/models/checkpoints",
-# workers=4,
-# output="../train",
-# )
+    # uncomment to download checkpoints
+    # downloadDirectory(
+        # "e11bio-prism",
+        # "ls/models/checkpoints",
+        # workers=4,
+        # output="../train",
+    # )
+
+    # tmp download of gdrive synapse data...
+    # once it is added to bucket, download like above
+    id = "1wGC5169C1K4DO2B8Xl-b-s_3shhGOC-M"
+
+    out_zip = "tmp.zip"
+    dest_dir = Path("synapses")
+    dest_dir.mkdir(parents=True, exist_ok=True)
+
+    gdown.download(id=id, output=out_zip, quiet=False)
+
+    with zipfile.ZipFile(out_zip, "r") as zf:
+        zf.extractall(dest_dir)
+
+    Path(out_zip).unlink()
+    macosx_dir = dest_dir / "__MACOSX"
+    if macosx_dir.exists():
+        shutil.rmtree(macosx_dir)

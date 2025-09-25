@@ -7,18 +7,19 @@ from .nodes import (
     ZeroChannels,
 )
 
-from .losses import WeightedMSELoss
+from .losses import WeightedBCELossMultiChannel, WeightedMSELoss
 
 from .models import ChannelAgnosticModel, MtlsdModel
 
 __all__ = [
     "Blur",
+    "ChannelAgnosticModel",
     "ChannelWiseIntensityAugment",
     "ExpandChannels",
+    "MtlsdModel",
     "ShuffleChannels",
     "SimpleDefectAugment",
+    "WeightedBCELossMultiChannel",
+    "WeightedMSELoss",
     "ZeroChannels",
-    "ChannelAgnosticModel",
-    "MtlsdModel",
-    "WeightedMSELoss"
 ]

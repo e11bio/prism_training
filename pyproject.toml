@@ -23,6 +23,7 @@ dependencies = [
     "numpy==1.26.0",
     "pydantic==2.6.3",
     "scikit-learn>=1.5.2",
+    "tensorboardX",
     "torch>=2.1.1",
     "tqdm",
     "wandb",

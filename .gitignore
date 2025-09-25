@@ -11,3 +11,4 @@ volara_logs
 *.pt
 *.json
 *model_checkpoint*
+log

@@ -49,11 +49,26 @@ def downloadDirectory(bucket_name, prefix, workers=32, output=None):
 
 
 if __name__ == "__main__":
+    if not Path("instance/example_data.zarr").exists():
+        downloadDirectory(
+            "e11bio-prism",
+            "ls/models/training_data/instance/crop_2.zarr",
+            workers=32,
+            output="instance/example_data.zarr",
+        )
+    if not Path("semantic/example_data.zarr").exists():
+        downloadDirectory(
+            "e11bio-prism",
+            "ls/models/training_data/semantic/crop_2.zarr",
+            workers=32,
+            output="semantic/example_data.zarr",
+        )
+
     downloadDirectory(
         "e11bio-prism",
-        "ls/models/training_data/instance/crop_2.zarr",
-        workers=32,
-        output="instance/example_data.zarr",
+        "ls/models/checkpoints",
+        workers=4,
+        output="../train",
     )
 
     # uncomment to download checkpoints

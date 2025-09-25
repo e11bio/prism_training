@@ -135,9 +135,9 @@ class Upsample(torch.nn.Module):
     ):
         super(Upsample, self).__init__()
 
-        assert (crop_factor is None) == (
-            next_conv_kernel_sizes is None
-        ), "crop_factor and next_conv_kernel_sizes have to be given together"
+        assert (crop_factor is None) == (next_conv_kernel_sizes is None), (
+            "crop_factor and next_conv_kernel_sizes have to be given together"
+        )
 
         self.crop_factor = crop_factor
         self.next_conv_kernel_sizes = next_conv_kernel_sizes
@@ -621,3 +621,54 @@ class MtlsdModel(torch.nn.Module):
             lsds = self.lsd_head(z[0])
 
         return affs, lsds
+
+
+class ChannelAgnosticWrapper(torch.nn.Module):
+    def __init__(self, model):
+        super().__init__()
+        self.model = model
+
+    def forward(self, x):
+        B, C, Z, Y, X = x.shape
+
+        # reshape batch dim
+        x = x.reshape(B * C, 1, Z, Y, X)
+
+        if self.training:
+            x = self.model(x)
+        else:
+            # During inference we iterate over channels to reduce memory usage
+            outs = []
+            for i in range(C):
+                outs.append(self.model(x[i * B : (i + 1) * B]))
+            x = torch.cat(outs, dim=0)
+
+        # different output shape from valid convs
+        _, OUT_C, Z, Y, X = x.shape
+
+        # reshape back and take the max accross input channels
+        x, _ = x.reshape(B, C, OUT_C, Z, Y, X).max(dim=1)
+
+        if OUT_C == 1:
+            x = x.squeeze(1)
+
+        return x
+
+
+class SigmoidWrapper(torch.nn.Module):
+    """
+    Sigmoid wrapper makes it easier to train with a logits loss function
+    since you want to pass logits to `BCEWithLogitsLoss` during training
+    but generate probabilities with `sigmoid` during inference.
+    """
+
+    def __init__(self, model):
+        super().__init__()
+        self.add_module("0", model)
+
+    def forward(self, x):
+        x = self._modules["0"](x)
+        if self.training:
+            return x
+        else:
+            return torch.sigmoid(x)

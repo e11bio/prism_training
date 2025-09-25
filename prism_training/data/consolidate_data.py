@@ -1,8 +1,10 @@
-from funlib.persistence import open_ds
+from funlib.persistence import open_ds, prepare_ds
 from pathlib import Path
 from scipy.ndimage import binary_erosion, distance_transform_edt
 import numpy as np
 import zarr
+
+from edt import edt
 
 
 def expand_labels(labels, background=0, expansion_factor=1):
@@ -70,45 +72,84 @@ def create_avg_intensity_barcodes(raw, labels):
 if __name__ == "__main__":
     store = Path("instance/example_data.zarr")
 
-    raw = open_ds(store / "raw")
-    labels = open_ds(store / "labels")
+    if not (store / "unlabelled").exists() and (store / "avg_barcodes").exists():
+        raw = open_ds(store / "raw")
+        labels = open_ds(store / "labels")
 
-    voxel_size = raw.voxel_size
+        voxel_size = raw.voxel_size
 
-    roi = labels.roi
+        roi = labels.roi
 
-    raw_data = raw[roi]
-    labels_data = labels[roi]
+        raw_data = raw[roi]
+        labels_data = labels[roi]
 
-    # create unlabelled mask here instead of after erosion, helps to decrease
-    # blurring boundaries between barcodes
-    unlabelled = (labels_data > 0).astype(np.uint8)
+        # create unlabelled mask here instead of after erosion, helps to decrease
+        # blurring boundaries between barcodes
+        unlabelled = (labels_data > 0).astype(np.uint8)
 
-    # expand labels
-    print("expanding label boundaries...")
-    labels_data = expand_labels(labels_data, expansion_factor=1)
+        # expand labels
+        print("expanding label boundaries...")
+        labels_data = expand_labels(labels_data, expansion_factor=1)
 
-    # then erode
-    print("eroding label boundaries...")
-    for z in range(labels.shape[0]):
-        labels_data[z] = erode_labels(labels_data[z], steps=1)
+        # then erode
+        print("eroding label boundaries...")
+        for z in range(labels.shape[0]):
+            labels_data[z] = erode_labels(labels_data[z], steps=1)
 
-    # normalize first
-    raw_data = (raw_data / 255).astype(np.float32)
+        # normalize first
+        raw_data = (raw_data / 255).astype(np.float32)
 
-    # compute avg barcodes
-    print("computing avg barcodes...")
-    avg_barcodes = create_avg_intensity_barcodes(raw_data, labels_data)
+        # compute avg barcodes
+        print("computing avg barcodes...")
+        avg_barcodes = create_avg_intensity_barcodes(raw_data, labels_data)
 
-    # scale back
-    avg_barcodes = (avg_barcodes * 255).astype(np.uint8)
+        # scale back
+        avg_barcodes = (avg_barcodes * 255).astype(np.uint8)
 
-    container = zarr.open(store, "a")
+        container = zarr.open(store, "a")
 
-    container["unlabelled"] = unlabelled
-    container["unlabelled"].attrs["offset"] = roi.get_begin()
-    container["unlabelled"].attrs["resolution"] = voxel_size
+        container["unlabelled"] = unlabelled
+        container["unlabelled"].attrs["offset"] = roi.get_begin()
+        container["unlabelled"].attrs["resolution"] = voxel_size
 
-    container["avg_barcodes"] = avg_barcodes
-    container["avg_barcodes"].attrs["offset"] = roi.get_begin()
-    container["avg_barcodes"].attrs["resolution"] = voxel_size
+        container["avg_barcodes"] = avg_barcodes
+        container["avg_barcodes"].attrs["offset"] = roi.get_begin()
+        container["avg_barcodes"].attrs["resolution"] = voxel_size
+
+    store = Path("semantic/example_data.zarr")
+    if not ((store / "border_mask").exists() and (store / "fgbg").exists()):
+        mask_array = open_ds(store / "labels", mode="r")
+        # binarize to just include bright objects:
+        mask_data = np.isin(mask_array[:], [1, 3, 10, 11])
+        blood_vessel_mask = np.isin(mask_array[:], [5, 6]).astype(np.uint8)
+        dt = edt(
+            mask_data,
+            anisotropy=mask_array.voxel_size,
+            black_border=False,
+        )
+        bg_dist = edt(
+            1 - mask_data, anisotropy=mask_array.voxel_size, black_border=False
+        )
+        mask_data = (dt < (30 * mask_array.voxel_size[2])) * (1 - blood_vessel_mask)
+        border_mask_array = prepare_ds(
+            store / "border_mask",
+            mask_data.shape,
+            mask_array.offset,
+            mask_array.voxel_size,
+            mask_array.axis_names,
+            mask_array.units,
+            mode="w",
+            dtype=np.uint8,
+        )
+        fg_bg_array = prepare_ds(
+            store / "fgbg",
+            mask_data.shape,
+            mask_array.offset,
+            mask_array.voxel_size,
+            mask_array.axis_names,
+            mask_array.units,
+            mode="w",
+            dtype=np.uint8,
+        )
+        border_mask_array[:] = mask_data
+        fg_bg_array[:] = bg_dist < 3 * mask_array.voxel_size[2]

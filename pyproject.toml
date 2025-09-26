@@ -12,7 +12,7 @@ dependencies = [
     "click",
     "edt",
     "funlib.geometry>=0.3.0",
-    # "funlib.learn.torch @ git+https://github.com/funkelab/funlib.learn.torch.git",
+    "funlib.learn.torch @ git+https://github.com/funkelab/funlib.learn.torch.git",
     "funlib.persistence >= 0.5.2",
     "gdown",
     "gunpowder>=1.4.0",

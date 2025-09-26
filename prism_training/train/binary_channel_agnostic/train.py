@@ -96,11 +96,21 @@ input_shape = (48, 148, 148)
 output_shape = (16, 56, 56)
 
 # load the data
-sample = Path("../../data/semantic/example_data.zarr")
+# sample = Path("../../data/semantic/example_data.zarr")
 
-raw = open_ds(sample / "enhanced")
-labels = open_ds(sample / "fgbg")
-mask = open_ds(sample / "border_mask")
+# raw = open_ds(sample / "enhanced")
+# labels = open_ds(sample / "fgbg")
+# mask = open_ds(sample / "border_mask")
+
+raw = open_ds(
+    "/home/arlo/Desktop/Workspace/Projects/lonely_santa/data/training/lonely_santa/sparse/sample_6.zarr/enhanced_3d"
+)
+labels = open_ds(
+    "/home/arlo/Desktop/Workspace/Projects/lonely_santa/data/training/lonely_santa/sparse/sample_6.zarr/eroded_labels"
+)
+mask = open_ds(
+    "/home/arlo/Desktop/Workspace/Projects/lonely_santa/data/training/lonely_santa/sparse/sample_6.zarr/unlabeled_mask"
+)
 
 dataset = iterable_dataset(
     datasets={

@@ -31,7 +31,6 @@ dependencies = [
     "zarr",
     "matplotlib>=3.10.6",
     "dacapo-toolbox>=1.0.0",
-    "tems>=1.0.4",
     "funlib-learn-torch",
 ]
 

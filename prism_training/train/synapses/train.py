@@ -6,8 +6,15 @@ import math
 import numpy as np
 import torch
 
+logging.basicConfig(level=logging.INFO)
+torch.backends.cudnn.benchmark = True
 
-def train(iterations):
+
+def train(iterations, checkpoint_basename=""):
+    logging.info(
+        f"training for {iterations} iterations using checkpoint base: {checkpoint_basename}"
+    )
+
     excitatory = gp.ArrayKey("EXCITATORY")
 
     gt_psd95_output = gp.ArrayKey("GT_BASSOON_OUTPUT")
@@ -47,7 +54,6 @@ def train(iterations):
 
     # assuming it was downloaded...
     samples = ["../../data/synapses/crop1_excitatory.zarr"]
-    # probabilities = [0.5, 0.5] # should be 50/50 by default with 2 samples
 
     data_sources = tuple(
         gp.ZarrSource(
@@ -82,18 +88,25 @@ def train(iterations):
         outputs={0: prediction},
         save_every=5000,
         log_dir="log",
-        checkpoint_basename="train_psd95",
+        checkpoint_basename=checkpoint_basename,
     )
 
     pipeline = (
         data_sources
-        + gp.RandomProvider(
-            # probabilities=probabilities
-        )
+        + gp.RandomProvider()
         + gp.SimpleAugment(transpose_only=[1, 2], mirror_only=[1, 2])
         + gp.IntensityAugment(excitatory, 0.8, 1.2, -0.2, 0.2)
         + gp.Stack(8)
         + train
+        + gp.Snapshot(
+            dataset_names={
+                excitatory: "raw",
+                gt_psd95_output: "target",
+                prediction: "prediction",
+            },
+            output_filename="batch_{iteration}.zarr",
+            every=100,
+        )
     )
 
     request = gp.BatchRequest()
@@ -110,4 +123,26 @@ def train(iterations):
 
 
 if __name__ == "__main__":
-    train(100000)
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Simple training script options")
+
+    parser.add_argument(
+        "-i",
+        "--iterations",
+        type=int,
+        default=100000,
+        help="Number of iterations (default: 100000)",
+    )
+
+    parser.add_argument(
+        "-c",
+        "--checkpoint_basename",
+        type=str,
+        default="",
+        help="Base name for checkpoints (default: empty string)",
+    )
+
+    args = parser.parse_args()
+
+    train(iterations=args.iterations, checkpoint_basename=args.checkpoint_basename)

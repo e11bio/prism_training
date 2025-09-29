@@ -12,3 +12,4 @@ volara_logs
 *.json
 *model_checkpoint*
 log
+snapshots

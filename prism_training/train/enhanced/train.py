@@ -8,10 +8,14 @@ import torch
 
 logging.basicConfig(level=logging.INFO)
 
-torch.backends.cudnn.benchmark = True
+# torch.backends.cudnn.benchmark = True
 
 
-def train(iterations, create_diff=False):
+def train(iterations, create_diff=True, checkpoint_basename=""):
+    logging.info(
+        f"training for {iterations} iterations using checkpoint base: {checkpoint_basename}"
+    )
+
     raw_key = gp.ArrayKey("RAW")
     target_key = gp.ArrayKey("TARGET")
     mask_key = gp.ArrayKey("MASK")
@@ -119,6 +123,7 @@ def train(iterations, create_diff=False):
             2: mask_key,
         },
         save_every=10000,
+        checkpoint_basename=checkpoint_basename,
     )
 
     pipeline += gp.Squeeze(
@@ -148,6 +153,38 @@ def train(iterations, create_diff=False):
 
 
 if __name__ == "__main__":
-    iterations = 200000
+    import argparse
 
-    train(iterations, create_diff=True)
+    parser = argparse.ArgumentParser(description="Simple training script options")
+
+    parser.add_argument(
+        "-i",
+        "--iterations",
+        type=int,
+        default=100000,
+        help="Number of iterations (default: 100000)",
+    )
+
+    parser.add_argument(
+        "-d",
+        "--create_diff",
+        type=bool,
+        default=True,
+        help="Whether to compute the barcode difference",
+    )
+
+    parser.add_argument(
+        "-c",
+        "--checkpoint_basename",
+        type=str,
+        default="",
+        help="Base name for checkpoints (default: empty string)",
+    )
+
+    args = parser.parse_args()
+
+    train(
+        iterations=args.iterations,
+        create_diff=args.create_diff,
+        checkpoint_basename=args.checkpoint_basename,
+    )

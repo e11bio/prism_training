@@ -10,35 +10,30 @@ dependencies = [
     "black",
     "boto3",
     "click",
+    "dacapo-toolbox>=1.0.0",
     "edt",
+    "funlib-learn-torch",
     "funlib.geometry>=0.3.0",
-    "funlib.learn.torch @ git+https://github.com/funkelab/funlib.learn.torch.git",
     "funlib.persistence >= 0.5.2",
     "gdown",
     "gunpowder>=1.4.0",
     "lsds",
+    "matplotlib>=3.10.6",
     "mwatershed>=0.5.0",
     "neuroglancer",
     "numba>=0.60",
-    # "numpy>=2.0.0",
-    # "pydantic==2.6.3",
     "scikit-learn>=1.5.2",
     "tensorboardX",
     "torch>=2.1.1",
     "torchvision",
     "tqdm",
+    "volara>=1.0.2",
+    "volara-torch>=1.0.1",
     "wandb",
     "zarr",
-    "matplotlib>=3.10.6",
-    "dacapo-toolbox>=1.0.0",
-    "funlib-learn-torch",
 ]
 
 [project.optional-dependencies]
-pred = [
-    "volara>=1.0.2",
-    "volara-torch>=1.0.1",
-]
 vis = ["funlib.show.neuroglancer"]
 
 [tool.uv.sources]

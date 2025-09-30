@@ -16,11 +16,14 @@ from prism_training.train.nodes import (
 )
 
 logging.basicConfig(level=logging.INFO)
-
 torch.backends.cudnn.benchmark = True
 
 
-def train(iterations):
+def train(iterations, raw_dataset="raw", checkpoint_basename=""):
+    logging.info(
+        f"training for {iterations} iterations using checkpoint base: {checkpoint_basename}"
+    )
+
     raw = gp.ArrayKey("RAW")
     labels = gp.ArrayKey("LABELS")
     gt_lsds = gp.ArrayKey("GT_LSDS")
@@ -107,7 +110,7 @@ def train(iterations):
     source = gp.ZarrSource(
         sample,
         {
-            raw: "raw",
+            raw: raw_dataset,
             labels: "labels",
             unlabelled: "unlabelled",
             dummy: "unlabelled",
@@ -209,6 +212,7 @@ def train(iterations):
             5: lsds_weights,
         },
         save_every=10000,
+        checkpoint_basename=checkpoint_basename,
     )
 
     pipeline += gp.Squeeze([raw, labels, gt_lsds, gt_affs, pred_lsds, pred_affs])
@@ -236,4 +240,38 @@ def train(iterations):
 
 
 if __name__ == "__main__":
-    train(100000)
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Simple training script options")
+
+    parser.add_argument(
+        "-i",
+        "--iterations",
+        type=int,
+        default=100000,
+        help="Number of iterations (default: 100000)",
+    )
+
+    parser.add_argument(
+        "-d",
+        "--dataset",
+        type=str,
+        default="raw",
+        help="image dataset to input",
+    )
+
+    parser.add_argument(
+        "-c",
+        "--checkpoint_basename",
+        type=str,
+        default="",
+        help="Base name for checkpoints (default: empty string)",
+    )
+
+    args = parser.parse_args()
+
+    train(
+        iterations=args.iterations,
+        dataset=args.dataset,
+        checkpoint_basename=args.checkpoint_basename,
+    )

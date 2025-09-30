@@ -16,7 +16,7 @@ from prism_training.train.nodes import (
 )
 
 logging.basicConfig(level=logging.INFO)
-torch.backends.cudnn.benchmark = True
+# torch.backends.cudnn.benchmark = True
 
 
 def train(iterations, raw_dataset="raw", checkpoint_basename=""):
@@ -272,6 +272,6 @@ if __name__ == "__main__":
 
     train(
         iterations=args.iterations,
-        dataset=args.dataset,
+        raw_dataset=args.dataset,
         checkpoint_basename=args.checkpoint_basename,
     )

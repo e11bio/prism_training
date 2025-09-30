@@ -42,9 +42,19 @@ pip install -e .
 2. download and consolidate example data
 
 ```
-cd data
+cd prism_training/data  # from base directory
 python download_data.py
 python consolidate_data.py
+cd ../../  # revert to base dir (optional)
+```
+
+3. predict enhanced data (takes about 10 minutes on NVIDIA RTX 6000 gpu)
+
+```
+cd prism_training/train/enhanced  # from base directory
+python predict.py
+cd ../../../  # revert to base dir (optional)
+cp -r prism_training/data/instance/example_data.zarr/enhanced prism_training/data/semantic/example_data.zarr/enhanced
 ```
 
 ## Enhancement
@@ -58,7 +68,11 @@ python consolidate_data.py
 
 ## Uniform embedding
 
+![](https://github.com/e11bio/prism_training/blob/main/static/uniform_batch.jpg)
+
 ## Barcode expression
+
+![](https://github.com/e11bio/prism_training/blob/main/static/binary_batch.jpg)
 
 ## Synapses
 

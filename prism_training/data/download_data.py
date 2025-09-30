@@ -102,9 +102,10 @@ if __name__ == "__main__":
         )
 
     if not Path("semantic/example_data.zarr").exists():
+        # note that semantic crop_0 refers to the same dataset as instance crop_2
         downloadDirectory(
             "e11bio-prism",
-            "ls/models/training_data/semantic/crop_2.zarr",
+            "ls/models/training_data/semantic/crop_0.zarr",
             workers=32,
             output="semantic/example_data.zarr",
         )

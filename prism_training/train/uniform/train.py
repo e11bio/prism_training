@@ -79,16 +79,9 @@ input_shape = (10, 212, 212)
 output_shape = (10, 212, 212)
 
 # load the data
-# sample = Path("../../data/instance/example_data.zarr")
-# raw = open_ds(sample / "enhanced")
-# labels = open_ds(sample / "labels")
-
-raw = open_ds(
-    "/home/arlo/Desktop/Workspace/Projects/lonely_santa/data/training/lonely_santa/sparse/sample_6.zarr/enhanced_3d"
-)
-labels = open_ds(
-    "/home/arlo/Desktop/Workspace/Projects/lonely_santa/data/training/lonely_santa/sparse/sample_6.zarr/eroded_labels"
-)
+sample = Path("../../data/instance/example_data.zarr")
+raw = open_ds(sample / "enhanced")
+labels = open_ds(sample / "labels")
 
 
 dataset = iterable_dataset(

@@ -62,10 +62,29 @@ This tutorial uses several different libraries for training/predicting/visualizi
 
 ## Enhancement
 
-![](https://github.com/e11bio/prism_training/blob/main/static/enhanced_batch.png)
+* Example training from scratch for 10 iters: `python train.py -i 10`
+
+Since we by default compute the difference between the average barcodes and the raw data as our target signal, a batch might look like:
+
+* Example training from scratch and learning the direct average barcodes rather than residuals: `python train.py -d false`
+
+A batch might look like:
+
+* Example training from downloaded checkpoint: `python train.py -c model`
+
+A batch might look like:
+
+If we then run inference, i.e `python predict.py` and visualize the raw vs enhanced, we could see something like: 
+
 ![](https://github.com/e11bio/prism_training/blob/main/static/enhanced_pred.png)
 
 ## Affs/LSDs
+
+Example training from model using raw input: `python train.py -d raw -c model`
+
+A batch might look like:
+
+Assuming we ran enhancement inference above, example using enhanced input: `python train.py -d enhanced -c model`
 
 ![](https://github.com/e11bio/prism_training/blob/main/static/affs_batch.png)
 
@@ -78,5 +97,9 @@ This tutorial uses several different libraries for training/predicting/visualizi
 ![](https://github.com/e11bio/prism_training/blob/main/static/binary_batch.jpg)
 
 ## Synapses
+
+Example training from model: `python train.py -c model`
+
+A batch might look like:
 
 ![](https://github.com/e11bio/prism_training/blob/main/static/synapse_batch.png)

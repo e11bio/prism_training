@@ -101,6 +101,8 @@ def train(iterations, create_diff=True, checkpoint_basename=""):
         p=0.5,
     )
 
+    print(create_diff)
+
     if create_diff:
         pipeline += CreateDiff(raw_key, target_key, mask_key)
 
@@ -168,8 +170,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "-d",
         "--create_diff",
-        type=bool,
+        type=lambda s: s.lower() in {"1", "true", "t", "yes", "y"},
         default=True,
+        metavar="{true|false}",
         help="Whether to compute the barcode difference",
     )
 

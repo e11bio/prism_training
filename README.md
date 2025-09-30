@@ -28,34 +28,37 @@ This tutorial uses several different libraries for training/predicting/visualizi
 
 ## Getting started
 
-Tested on ubuntu 22.04 with an a6000 gpu. Assumes basic python an ML knowledge. For some useful tutorial with affinity/lsd models see this [repo](https://github.com/funkelab/lsd)
+> ## Pre-requisites
+> We highly recommend using a package manager. `conda`, `virtualenv`, or `uv` are all good examples. The instructions are
+> created assuming usage of `uv`. [Here](https://docs.astral.sh/uv/getting-started/installation/) are the installation instructions.
+>
+> Tested on ubuntu 22.04 with an a6000 gpu. Assumes basic python an ML knowledge. For some useful tutorial with affinity/lsd models see this [repo](https://github.com/funkelab/lsd)
+---
 
-1. clone this repo and create a conda environment + install packages:
 
-```
-git clone https://github.com/e11bio/prism_training.git; cd prism_training
-conda create -n prism_training python=3.11
-conda activate prism_training
-pip install -e .
-```
+1. clone this repo:
+    ```
+    git clone https://github.com/e11bio/prism_training.git
+    cd prism_training/prism_training
+    ```
 
 2. download and consolidate example data
-
-```
-cd prism_training/data  # from base directory
-python download_data.py
-python consolidate_data.py
-cd ../../  # revert to base dir (optional)
-```
+    ```
+    cd data  # from script directory
+    uv run download_data.py
+    uv run consolidate_data.py
+    cd ../  # revert to script directory (optional)
+    ```
 
 3. predict enhanced data (takes about 10 minutes on NVIDIA RTX 6000 gpu)
+    ```
+    cd train/enhanced  # from script directory
+    uv run predict.py
+    cd ../../  # revert to script directory (optional)
+    cp -r prism_training/data/instance/example_data.zarr/enhanced prism_training/data/semantic/example_data.zarr/enhanced
+    ```
 
-```
-cd prism_training/train/enhanced  # from base directory
-python predict.py
-cd ../../../  # revert to base dir (optional)
-cp -r prism_training/data/instance/example_data.zarr/enhanced prism_training/data/semantic/example_data.zarr/enhanced
-```
+4. run any of the other models via `uv run train.py`. Some models take arguments, please read the individual README's.
 
 ## Enhancement
 

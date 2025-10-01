@@ -10,6 +10,10 @@ import torch
 
 
 if __name__ == "__main__":
+    ## temporary solution to serialization issue. saved model.pt has package
+    ## that we don't install, so for now just recreate and resave the model.
+    ## once this is fixed we can just call save_path="model.pt" directly
+
     num_fmaps = 12
     fmap_inc_factor = 5
     upsample_mode = "trilinear"

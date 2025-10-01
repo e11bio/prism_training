@@ -15,7 +15,6 @@ dependencies = [
     "funlib-learn-torch",
     "funlib.geometry>=0.3.0",
     "funlib.persistence >= 0.5.2",
-    "gdown",
     "gunpowder>=1.4.0",
     "lsds",
     "matplotlib>=3.10.6",

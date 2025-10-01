@@ -53,7 +53,7 @@ def train(iterations, checkpoint_basename=""):
     output_size = output_shape * voxel_size
 
     # assuming it was downloaded...
-    samples = ["../../data/synapses/crop1_excitatory.zarr"]
+    samples = ["../../../data/synapses/example_data.zarr"]
 
     data_sources = tuple(
         gp.ZarrSource(

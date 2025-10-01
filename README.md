@@ -108,9 +108,23 @@ Which might give us something cleaner like:
 
 ## Uniform embedding
 
+Example training with `uv run train.py`. If the model weights have been downloaded and are available, they will be
+used. Otherwise training will start from scratch.
+By default we will only train a single iteration for illustration purposes, but feel free to increase the NUM_ITERATIONS
+variable as high as you want.
+
+This is an example of what the first batch may look like when starting from the provided checkpoint:
+
 ![](https://github.com/e11bio/prism_training/blob/main/static/uniform_batch.jpg)
 
+Note that the purpose of the uniform embedding is to encode the barcodes in a space where computing the distance between two pixels is easy, the benefit of this embedding is largely hidden by visualizing the initial raw data with a PCA projection, since this is also a method for extracting the basis vectors of maximum variation and then displaying them. Without any appropriate normalization the raw data can be very hard to see.
+
 ## Barcode expression
+
+Example training with `uv run train.py`. The same setup as the uniform model, will start with the provided model if it
+is available, but will otherwise train from scratch.
+
+Here is an example of the first batch assuming the checkpoint is available.
 
 ![](https://github.com/e11bio/prism_training/blob/main/static/binary_batch.jpg)
 

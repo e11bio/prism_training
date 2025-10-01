@@ -46,6 +46,9 @@ def downloadDirectory(bucket_name, prefix, workers=32, output=None):
 
 
 if __name__ == "__main__":
+
+    # note this will download ~3gb of data.
+
     if not Path("instance/example_data.zarr").exists():
         downloadDirectory(
             "e11bio-prism",
@@ -71,9 +74,18 @@ if __name__ == "__main__":
             output="synapses/example_data.zarr",
         )
 
+    # download all checkpoints. note this will download ~3.5gb of data
     downloadDirectory(
         "e11bio-prism",
         "ls/models/checkpoints",
         workers=4,
         output="../train",
     )
+
+    # can instead download a specific task checkpoint if preferred, eg:
+   #  downloadDirectory(
+        # "e11bio-prism",
+        # "ls/models/checkpoints/enhanced",
+        # workers=4,
+        # output="../train/enhanced",
+    # )

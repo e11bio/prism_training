@@ -135,9 +135,9 @@ class Upsample(torch.nn.Module):
     ):
         super(Upsample, self).__init__()
 
-        assert (crop_factor is None) == (next_conv_kernel_sizes is None), (
-            "crop_factor and next_conv_kernel_sizes have to be given together"
-        )
+        assert (crop_factor is None) == (
+            next_conv_kernel_sizes is None
+        ), "crop_factor and next_conv_kernel_sizes have to be given together"
 
         self.crop_factor = crop_factor
         self.next_conv_kernel_sizes = next_conv_kernel_sizes
@@ -497,10 +497,13 @@ class ChannelAgnosticModel(torch.nn.Module):
         kernel_size_up,
         upsample_mode,
         use_residual,
+        k=1,
         iter_channels=False,
         add_residual=False,
     ):
         super().__init__()
+
+        self.k = k
 
         # UNet with in_channels=1 since we are processing one channel at a time
         self.unet = UNet(
@@ -514,43 +517,44 @@ class ChannelAgnosticModel(torch.nn.Module):
             use_residual=use_residual,
         )
 
-        # ConvPass layer to get the final denoised output for each channel
-        self.head = ConvPass(num_fmaps, 1, [[1, 1, 1]], activation=None)
+        # k output channels
+        self.head = ConvPass(num_fmaps, self.k, [[1, 1, 1]], activation=None)
         self.iter_channels = iter_channels
         self.add_residual = add_residual
 
     def forward(self, x):
-        B, C, z_in, y_in, x_in = x.shape
+        # cache for residual
+        x_inp = x
+        B, C_in, z_in, y_in, x_in_ = x.shape
 
         if self.iter_channels:
-            channel_outputs = []
-
-            for c in range(C):
-                single_channel_batch = x[:, c, :, :, :]
-                single_channel_batch = single_channel_batch.unsqueeze(1)
-                processed_channel_batch = self.unet(single_channel_batch)
-                processed_channel_batch = self.head(processed_channel_batch)
-
-                channel_outputs.append(processed_channel_batch)
-
-            output = torch.cat(channel_outputs, dim=1)
-
+            outs = []
+            for c in range(C_in):
+                y = self.unet(x[:, c : c + 1])
+                y = self.head(y)
+                outs.append(y)
+            output = torch.cat(outs, dim=1)
             _, _, z_out, y_out, x_out = output.shape
-
+            K = self.k
         else:
-            x = x.view(B * C, 1, z_in, y_in, x_in)
-            y = self.unet(x)
+            x_ = x.view(B * C_in, 1, z_in, y_in, x_in_)
+            y = self.unet(x_)
             y = self.head(y)
-            _, _, z_out, y_out, x_out = y.shape
+            _, K, z_out, y_out, x_out = y.shape
 
-            output = y.view(B, C, z_out, y_out, x_out)
+            # flatten
+            output = y.view(B, C_in, K, z_out, y_out, x_out).reshape(
+                B, C_in * K, z_out, y_out, x_out
+            )
+
+        if hasattr(self, "k"):
+            assert K == self.k, f"got k={K}, expected {self.k}"
 
         if self.add_residual:
             z_start = (z_in - z_out) // 2
             y_start = (y_in - y_out) // 2
-            x_start = (x_in - x_out) // 2
-
-            x = x[
+            x_start = (x_in_ - x_out) // 2
+            x_res = x_inp[
                 :,
                 :,
                 z_start : z_start + z_out,
@@ -558,7 +562,11 @@ class ChannelAgnosticModel(torch.nn.Module):
                 x_start : x_start + x_out,
             ]
 
-            output = output + x
+            if K == 1:
+                output = output + x_res
+            else:
+                x_res_expanded = x_res.repeat_interleave(K, dim=1)
+                output = output + x_res_expanded
 
         return output
 

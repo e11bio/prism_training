@@ -1,10 +1,10 @@
-from funlib.persistence import open_ds, prepare_ds
 from pathlib import Path
-from scipy.ndimage import binary_erosion, distance_transform_edt
+
 import numpy as np
 import zarr
-
 from edt import edt
+from funlib.persistence import open_ds, prepare_ds
+from scipy.ndimage import binary_erosion, distance_transform_edt
 
 
 def expand_labels(labels, background=0, expansion_factor=1):
@@ -72,7 +72,7 @@ def create_avg_intensity_barcodes(raw, labels):
 if __name__ == "__main__":
     store = Path("instance/example_data.zarr")
 
-    if not (store / "unlabelled").exists() and (store / "avg_barcodes").exists():
+    if not ((store / "unlabelled").exists() and (store / "avg_barcodes").exists()):
         raw = open_ds(store / "raw")
         labels = open_ds(store / "labels")
 
@@ -106,7 +106,7 @@ if __name__ == "__main__":
         # scale back
         avg_barcodes = (avg_barcodes * 255).astype(np.uint8)
 
-        container = zarr.open(store, "a")
+        container = zarr.open(store, mode="a")
 
         container["unlabelled"] = unlabelled
         container["unlabelled"].attrs["offset"] = roi.get_begin()
@@ -117,6 +117,7 @@ if __name__ == "__main__":
         container["avg_barcodes"].attrs["resolution"] = voxel_size
 
     store = Path("semantic/example_data.zarr")
+
     if not ((store / "border_mask").exists() and (store / "fgbg").exists()):
         mask_array = open_ds(store / "labels", mode="r")
         # binarize to just include bright objects:

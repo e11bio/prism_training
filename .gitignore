@@ -13,3 +13,4 @@ volara_logs
 *model_checkpoint*
 log
 snapshots
+uv.lock

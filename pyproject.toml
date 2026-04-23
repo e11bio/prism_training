@@ -23,13 +23,13 @@ dependencies = [
     "numba>=0.60",
     "scikit-learn>=1.5.2",
     "tensorboardX",
-    "torch>=2.1.1",
+    "torch==2.6.0",
     "torchvision",
     "tqdm",
     "volara>=1.0.2",
     "volara-torch>=1.0.1",
     "wandb",
-    "zarr",
+    "zarr<3.0",
 ]
 
 [project.optional-dependencies]

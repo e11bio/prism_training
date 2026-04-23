@@ -32,7 +32,7 @@ This tutorial uses several different libraries for training/predicting/visualizi
 > We highly recommend using a package manager. `conda`, `virtualenv`, or `uv` are all good examples. The instructions are
 > created assuming usage of `uv`. [Here](https://docs.astral.sh/uv/getting-started/installation/) are the installation instructions.
 >
-> Tested on ubuntu 22.04 with an a6000 gpu. Assumes basic python an ML knowledge. For some useful tutorial with affinity/lsd models see this [repo](https://github.com/funkelab/lsd)
+> Tested on ubuntu 22.04 with an a6000 gpu. Assumes basic python and ML knowledge. For some useful tutorial with affinity/lsd models see this [repo](https://github.com/funkelab/lsd)
 ---
 
 
@@ -62,7 +62,7 @@ This tutorial uses several different libraries for training/predicting/visualizi
 
 ## Enhancement
 
-* Example training from scratch for 10 iters: `python train.py -i 10`
+* Example training from scratch for 10 iters: `uv run train.py -i 10`
 
 Since we by default compute the difference between the average barcodes and the raw data as our target signal, a batch might look like:
 
@@ -70,7 +70,7 @@ Since we by default compute the difference between the average barcodes and the 
 
 Might have to tweak the shader a bit to see the target since it can contain negative values. The black pixels around the object denote the sparsely masked label for training (pixels outside of this label do not contribute to the loss). No need to visualize the predictions yet since this is from scratch so they will be uninformative.
 
-* Example training from scratch and learning the direct average barcodes rather than residuals: `python train.py -d false`
+* Example training from scratch and learning the direct average barcodes rather than residuals: `uv run train.py -d false`
 
 A batch might then look like:
 
@@ -78,13 +78,13 @@ A batch might then look like:
 
 Which is a bit more visually intuitive. 
 
-* Example training from downloaded checkpoint: `python train.py -c model`
+* Example training from downloaded checkpoint: `uv run train.py -c model`
 
 Now we can visualize the predictions (residual barcode), and we can visualize the predicted average barcodes (simply adding the residual to the raw data). A batch might then look like:
 
 ![](https://github.com/e11bio/prism_training/blob/main/static/example_diff_added_barcodes.png)
 
-If we then run inference, i.e `python predict.py` and visualize the raw vs enhanced, we could see something like: 
+If we then run inference, i.e `uv run predict.py` and visualize the raw vs enhanced, we could see something like: 
 
 ![](https://github.com/e11bio/prism_training/blob/main/static/enhanced_pred.png)
 
@@ -92,7 +92,7 @@ This is using a more fancy custom shader in which each channel is percentile nor
 
 ## Affs/LSDs
 
-Example training from model using raw input: `python train.py -d raw -c model`
+Example training from model using raw input: `uv run train.py -d raw -c model`
 
 A batch might look like:
 
@@ -100,7 +100,7 @@ A batch might look like:
 
 The predictions are kind of noisy since the raw data is used as input.
 
-Assuming we ran enhancement inference above, example using enhanced input: `python train.py -d enhanced -c model`
+Assuming we ran enhancement inference above, example using enhanced input: `uv run train.py -d enhanced -c model`
 
 Which might give us something cleaner like:
 
@@ -130,7 +130,7 @@ Here is an example of the first batch assuming the checkpoint is available.
 
 ## Synapses
 
-Example training from model: `python train.py -c model`
+Example training from model: `uv run train.py -c model`
 
 A batch might look like:
 

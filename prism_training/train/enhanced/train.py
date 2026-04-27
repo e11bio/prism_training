@@ -93,7 +93,7 @@ def train(iterations, create_diff=True, checkpoint_basename=""):
     pipeline += gp.SimpleAugment(transpose_only=[1, 2])
 
     pipeline += gp.DeformAugment(
-        control_point_spacing=Coordinate((10,) * 3) * voxel_size[1],
+        control_point_spacing=Coordinate(4, 10, 10) * voxel_size,
         jitter_sigma=Coordinate(2, 2, 2) * voxel_size[1],
         scale_interval=(0.5, 2.0),
         rotate=True,
